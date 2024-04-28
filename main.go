@@ -29,6 +29,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("サーバーが立ち上がりませんでした: %v", err)
 	}
-
 	log.Println("Server starting on port", os.Getenv("SERVER_PORT"))
 }
