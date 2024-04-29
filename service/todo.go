@@ -51,3 +51,32 @@ func (service *TodoService) Create(context context.Context, request model.Create
 
 	return &response, nil
 }
+
+func (service *TodoService) Get(context context.Context, request model.GetTodoRequest) (*model.GetTodoResponse, error) {
+
+	const query string = `SELECT * FROM todos WHERE id = ?`
+
+	preparedQuery, err := service.db.PrepareContext(context, query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer preparedQuery.Close()
+
+	// 1つだけ決め打ちで返してほしいならQueryRowContextらしい
+	row := preparedQuery.QueryRowContext(context, request.ID)
+
+	var todo model.Todo
+
+	err2 := row.Scan(&todo.ID, &todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt)
+	if err != nil {
+		return nil, err2
+	}
+
+	response := model.GetTodoResponse{
+		Todo: todo,
+	}
+
+	return &response, nil
+
+}
