@@ -5,6 +5,7 @@ import (
 	"go-todo/model"
 	"go-todo/service"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -24,6 +25,7 @@ func (handler *TodoHandler) Create(writer http.ResponseWriter, request *http.Req
 	// body取り出し
 	body, err := io.ReadAll(request.Body)
 	if err != nil {
+		log.Printf("Error:%v\n", err)
 		errorResponse.AddErrorMessage("server error")
 		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
 		return
@@ -33,6 +35,7 @@ func (handler *TodoHandler) Create(writer http.ResponseWriter, request *http.Req
 	var todoRequest model.CreateTodoRequest
 	err2 := json.Unmarshal(body, &todoRequest)
 	if err2 != nil {
+		log.Println("Error:Failed to parse JSON body")
 		errorResponse.AddErrorMessage("Failed to parse JSON body")
 		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
 		return
@@ -40,6 +43,7 @@ func (handler *TodoHandler) Create(writer http.ResponseWriter, request *http.Req
 
 	// subjectがあるか確認
 	if todoRequest.Subject == "" {
+		log.Println("Error:subject not exist")
 		errorResponse.AddErrorMessage("subject not exist")
 		errorResponse.CreateErrorResponse(writer, http.StatusBadRequest)
 		return
@@ -48,6 +52,7 @@ func (handler *TodoHandler) Create(writer http.ResponseWriter, request *http.Req
 	// 登録してid,messageを受け取る
 	response, err3 := handler.service.Create(request.Context(), todoRequest)
 	if err3 != nil {
+		log.Printf("Error:%v\n", err)
 		errorResponse.AddErrorMessage("server error")
 		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
 		return
@@ -56,6 +61,7 @@ func (handler *TodoHandler) Create(writer http.ResponseWriter, request *http.Req
 	writer.Header().Set("Content-Type", "application/json")
 	err4 := json.NewEncoder(writer).Encode(response)
 	if err4 != nil {
+		log.Printf("Error:%v\n", err)
 		errorResponse.AddErrorMessage("server error")
 		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
 		return
