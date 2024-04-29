@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Todo struct {
 	ID          int       `json:"id"`
@@ -18,4 +20,12 @@ type CreateTodoRequest struct {
 type CreateTodoResponse struct {
 	ID      int    `json:"id"`
 	Message string `json:"message"`
+}
+
+type GetTodoRequest struct {
+	ID int `json:"id"`
+}
+
+type GetTodoResponse struct {
+	Todo Todo `json:"todo"`
 }
