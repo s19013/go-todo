@@ -100,6 +100,7 @@ func (service *TodoService) Update(context context.Context, request model.Update
 
 	result, err := preparedQuery.ExecContext(context, request.Subject, request.Description, request.ID)
 	if err != nil {
+		log.Printf("Error 更新失敗:%v\n", err)
 		return nil, err
 	}
 
@@ -109,6 +110,34 @@ func (service *TodoService) Update(context context.Context, request model.Update
 
 	response := model.UpdateTodoResponse{
 		Message: "更新しました｡",
+	}
+
+	return &response, nil
+}
+
+func (service *TodoService) Delete(context context.Context, request model.DeleteTodoRequest) (*model.DeleteTodoResponse, error) {
+	const query string = `DELETE FROM todos WHERE id = ?`
+
+	preparedQuery, err := service.db.PrepareContext(context, query)
+	if err != nil {
+		log.Printf("Error PrepareContext失敗:%v\n", err)
+		return nil, err
+	}
+
+	defer preparedQuery.Close()
+
+	result, err := preparedQuery.ExecContext(context, request.ID)
+	if err != nil {
+		log.Printf("Error 削除失敗:%v\n", err)
+		return nil, err
+	}
+
+	// resultいらないんだけどなんか使わないとエラーになるからここで適当につかう
+	// _にしても_使うなとエラーになる
+	result.LastInsertId() //更新なので0
+
+	response := model.DeleteTodoResponse{
+		Message: "削除しました",
 	}
 
 	return &response, nil
