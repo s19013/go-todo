@@ -74,8 +74,8 @@ func (service *TodoService) Get(context context.Context, request model.GetTodoRe
 	var todo model.Todo
 
 	err2 := row.Scan(&todo.ID, &todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt)
-	if err != nil {
-		log.Printf("Error データ取り出し失敗:%v\n", err)
+	if err2 != nil {
+		log.Printf("Error データ取り出し失敗:%v\n", err2)
 		return nil, err2
 	}
 

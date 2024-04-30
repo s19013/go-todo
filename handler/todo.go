@@ -108,7 +108,7 @@ func (handler *TodoHandler) Get(writer http.ResponseWriter, request *http.Reques
 	// todoを受け取る
 	response, err3 := handler.service.Get(request.Context(), todoRequest)
 	if err3 != nil {
-		log.Printf("Error データベース処理失敗:%v\n", err)
+		log.Printf("Error データベース処理失敗:%v\n", err3)
 		errorResponse.AddErrorMessage("server error")
 		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
 		return
@@ -117,7 +117,7 @@ func (handler *TodoHandler) Get(writer http.ResponseWriter, request *http.Reques
 	writer.Header().Set("Content-Type", "application/json")
 	err4 := json.NewEncoder(writer).Encode(response)
 	if err4 != nil {
-		log.Printf("Error json変換に失敗:%v\n", err)
+		log.Printf("Error json変換に失敗:%v\n", err4)
 		errorResponse.AddErrorMessage("server error")
 		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
 		return
