@@ -21,6 +21,11 @@ func NewRouter(todoDB *sql.DB) *http.ServeMux {
 		if request.Method == http.MethodGet {
 			todoHandler.Get(writer, request)
 		}
+
+		if request.Method == http.MethodPut {
+			todoHandler.Update(writer, request)
+		}
+
 	})
 
 	return mux
