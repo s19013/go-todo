@@ -180,3 +180,51 @@ func (handler *TodoHandler) Update(writer http.ResponseWriter, request *http.Req
 		return
 	}
 }
+
+func (handler *TodoHandler) Delete(writer http.ResponseWriter, request *http.Request) {
+	errorResponse := model.NewErrorMessages()
+
+	parts := strings.Split(request.URL.Path, "/")
+
+	id := parts[len(parts)-1]
+
+	if id == "" {
+		log.Println("Error:id not found")
+		errorResponse.AddErrorMessage("id not found")
+		errorResponse.CreateErrorResponse(writer, http.StatusBadRequest)
+		return
+	}
+
+	// 今は文字列のままなので数値型に変換する必要がある
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		log.Printf("Error 数値変換失敗:%v\n", err)
+		errorResponse.AddErrorMessage("server error")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+
+	// note:ぶっちゃけわざわざリクエスト型にいれる必要があるかどうかは疑問
+	// まあ､今後パラメータ増えるかも?だし｡
+	todoRequest := model.DeleteTodoRequest{
+		ID: intId,
+	}
+
+	// todoを受け取る
+	response, err3 := handler.service.Delete(request.Context(), todoRequest)
+	if err3 != nil {
+		log.Printf("Error データベース処理失敗:%v\n", err3)
+		errorResponse.AddErrorMessage("server error")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	err4 := json.NewEncoder(writer).Encode(response)
+	if err4 != nil {
+		log.Printf("Error json変換に失敗:%v\n", err4)
+		errorResponse.AddErrorMessage("server error")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+}

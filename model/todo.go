@@ -39,3 +39,11 @@ type UpdateTodoRequest struct {
 type UpdateTodoResponse struct {
 	Message string `json:"message"`
 }
+
+type DeleteTodoRequest struct {
+	ID int `json:"id"`
+}
+
+type DeleteTodoResponse struct {
+	Message string `json:"message"`
+}
