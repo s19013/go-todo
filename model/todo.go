@@ -29,3 +29,13 @@ type GetTodoRequest struct {
 type GetTodoResponse struct {
 	Todo Todo `json:"todo"`
 }
+
+type UpdateTodoRequest struct {
+	ID          int    `json:"id"`
+	Subject     string `json:"subject"`
+	Description string `json:"description"`
+}
+
+type UpdateTodoResponse struct {
+	Message string `json:"message"`
+}
