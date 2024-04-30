@@ -86,3 +86,30 @@ func (service *TodoService) Get(context context.Context, request model.GetTodoRe
 	return &response, nil
 
 }
+
+func (service *TodoService) Update(context context.Context, request model.UpdateTodoRequest) (*model.UpdateTodoResponse, error) {
+	const query string = `UPDATE todos SET subject = ?, description = ? WHERE id = ?`
+
+	preparedQuery, err := service.db.PrepareContext(context, query)
+	if err != nil {
+		log.Printf("Error PrepareContext失敗:%v\n", err)
+		return nil, err
+	}
+
+	defer preparedQuery.Close()
+
+	result, err := preparedQuery.ExecContext(context, request.Subject, request.Description, request.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// resultいらないんだけどなんか使わないとエラーになるからここで適当につかう
+	// _にしても_使うなとエラーになる
+	result.LastInsertId() //更新なので0
+
+	response := model.UpdateTodoResponse{
+		Message: "更新しました｡",
+	}
+
+	return &response, nil
+}

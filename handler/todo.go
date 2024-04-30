@@ -123,3 +123,60 @@ func (handler *TodoHandler) Get(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 }
+
+func (handler *TodoHandler) Update(writer http.ResponseWriter, request *http.Request) {
+	errorResponse := model.NewErrorMessages()
+
+	// body取り出し
+	body, err := io.ReadAll(request.Body)
+	if err != nil {
+		log.Printf("error body取り出し失敗:%v\n", err)
+		errorResponse.AddErrorMessage("server error")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+
+	// json変化
+	var todoRequest model.UpdateTodoRequest
+	err2 := json.Unmarshal(body, &todoRequest)
+	if err2 != nil {
+		log.Printf("Error:Failed to parse JSON body:%v", err2)
+		errorResponse.AddErrorMessage("Failed to parse JSON body")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+
+	// idがあるか確認
+	if todoRequest.ID == 0 {
+		log.Println("Error:Id not exist")
+		errorResponse.AddErrorMessage("ID not exist")
+		errorResponse.CreateErrorResponse(writer, http.StatusBadRequest)
+		return
+	}
+
+	// subjectがあるか確認
+	if todoRequest.Subject == "" {
+		log.Println("Error:subject not exist")
+		errorResponse.AddErrorMessage("subject not exist")
+		errorResponse.CreateErrorResponse(writer, http.StatusBadRequest)
+		return
+	}
+
+	// 登録してid,messageを受け取る
+	response, err3 := handler.service.Update(request.Context(), todoRequest)
+	if err3 != nil {
+		log.Printf("Error データベース処理失敗:%v\n", err3)
+		errorResponse.AddErrorMessage("server error")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	err4 := json.NewEncoder(writer).Encode(response)
+	if err4 != nil {
+		log.Printf("Error jsonに変換失敗:%v\n", err4)
+		errorResponse.AddErrorMessage("server error")
+		errorResponse.CreateErrorResponse(writer, http.StatusInternalServerError)
+		return
+	}
+}
